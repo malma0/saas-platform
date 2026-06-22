@@ -1,0 +1,173 @@
+/* ============================================================
+   Мобильная адаптация — Теннис Клуб НСК
+   Общий файл для всех трёх страниц. Селекторы, которых нет
+   на конкретной странице, просто не срабатывают.
+   ============================================================ */
+
+/* кнопка-гамбургер и панель скрыты на десктопе */
+.m-burger{display:none;}
+.m-navpanel{display:none;}
+
+/* ───────────────────────── ПЛАНШЕТ / ТЕЛЕФОН ───────────────────────── */
+@media (max-width: 900px){
+
+  body{padding-left:14px;padding-right:14px;}
+  /* страховка от горизонтального скролла на телефоне */
+  html,body{max-width:100%;overflow-x:hidden;}
+
+  /* === ЖЁСТКИЕ ГАРАНТИИ ОТ ПЕРЕПОЛНЕНИЯ ПО ГОРИЗОНТАЛИ ===
+     min-width:0 разрешает flex/grid-элементам сжиматься (по умолчанию
+     min-width:auto = размер контента и распирает экран nowrap-словами).
+     Явные min-width (напр. .cal{min-width:980px}) выигрывают по специфичности
+     и продолжают работать — там, где нужен горизонтальный свайп. */
+  .wrap *, .pl *, main *{min-width:0;}
+  img, svg, image-slot, video, canvas{max-width:100%;}
+  /* убираем десктопные приёмы, распирающие карточки на телефоне */
+  .cname{white-space:normal !important;text-align:left !important;}
+  .ttw{float:none !important;display:inline-block;margin-top:7px;}
+  .link-arrow{white-space:normal;}
+
+  /* ── ШАПКА ── */
+  header{gap:12px !important;padding:14px 2px 16px !important;align-items:center;flex-wrap:nowrap !important;}
+  header > nav{display:none !important;}
+  header .head-info,
+  header .head-phone,
+  header .btn-cabinet,
+  header .user-chip{display:none !important;}
+  header .logo{flex:1 1 auto;min-width:0;}
+  .logo-mark{width:42px;height:42px;}
+  .logo-txt .brand{font-size:19px;}
+  .logo-txt .sub{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  .m-burger{display:flex;flex-direction:column;justify-content:center;gap:5px;
+    width:46px;height:46px;flex:none;padding:0 12px;cursor:pointer;
+    background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:11px;}
+  .m-burger span{display:block;height:2px;width:100%;background:#e7e8e3;border-radius:2px;transition:transform .22s,opacity .18s;}
+  body.m-nav-open .m-burger span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  body.m-nav-open .m-burger span:nth-child(2){opacity:0;}
+  body.m-nav-open .m-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+  /* ── ВЫЕЗЖАЮЩАЯ ПАНЕЛЬ НАВИГАЦИИ ── */
+  .m-navpanel{display:block;position:fixed;inset:0;z-index:9000;
+    background:rgba(8,9,7,.97);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    opacity:0;pointer-events:none;transition:opacity .2s;overflow-y:auto;}
+  body.m-nav-open{overflow:hidden;}
+  body.m-nav-open .m-navpanel{opacity:1;pointer-events:auto;}
+  .m-navpanel-inner{padding:88px 26px 44px;max-width:480px;margin:0 auto;}
+  .m-navpanel nav{display:flex !important;flex-direction:column;gap:0;margin:0 !important;}
+  .m-navpanel nav a{font-size:21px;font-weight:600;color:#e7e8e3;padding:16px 4px;
+    border-bottom:1px solid var(--line-soft);}
+  .m-navpanel nav a.active{color:var(--green);}
+  .m-navpanel nav a.active::after{display:none;}
+
+  .m-contacts{margin-top:26px;display:flex;flex-direction:column;gap:6px;}
+  .m-contact{display:flex;align-items:center;gap:13px;padding:12px 4px;color:#e7e8e3;}
+  .m-contact .m-ci{color:var(--green);flex:none;}
+  .m-contact b{font-size:16px;font-weight:700;display:block;}
+  .m-contact i{font-size:12.5px;color:var(--muted);font-style:normal;display:block;margin-top:2px;}
+  .m-login{margin-top:22px;width:100%;display:flex;align-items:center;justify-content:center;gap:9px;
+    background:var(--green);color:#13160a;border:none;border-radius:11px;padding:15px;
+    font-size:15.5px;font-weight:800;cursor:pointer;font-family:inherit;}
+
+  /* ════════════ ГЛАВНАЯ ════════════ */
+  .hero{grid-template-columns:1fr !important;min-height:auto !important;}
+  .hero .veil{background:linear-gradient(180deg,rgba(9,10,8,.5) 0%,rgba(9,10,8,.2) 32%,rgba(9,10,8,.82) 100%) !important;}
+  .hero-bg img{object-position:50% 28% !important;}
+  .hero-body{padding:30px 22px 22px !important;}
+  .hero h1{font-size:34px !important;}
+  .hero p.lead{font-size:15.5px !important;max-width:none !important;margin-top:16px !important;}
+  .hero-feats{gap:16px 22px !important;padding-top:28px !important;max-width:none !important;}
+  .feat{min-width:0;}
+  .feat .ring{width:34px;height:34px;}
+  .feat span{font-size:13.5px !important;overflow-wrap:anywhere;}
+  .dots{display:none !important;}
+  .booking{margin:0 16px 16px !important;}
+
+  .grid-2{grid-template-columns:1fr !important;}
+  .two-col{grid-template-columns:1fr !important;}
+  .coaches{grid-template-columns:1fr !important;}
+  .coach-top{align-items:flex-start;}
+  .coach .ci{display:flex;flex-direction:column;align-items:flex-start;}
+  .partners{grid-template-columns:1fr 1fr !important;}
+  .offers{grid-template-columns:1fr !important;}
+  .block{padding:22px 18px !important;}
+  .block-head h2{font-size:17px !important;white-space:normal !important;}
+
+  .foot{grid-template-columns:1fr 1fr !important;gap:16px 14px !important;}
+
+  /* ════════════ РАСПИСАНИЕ ════════════ */
+  .main-layout{grid-template-columns:1fr !important;}
+  .page-hero{height:auto !important;}
+  .hero-txt{padding:20px 22px !important;}
+  .hero-txt h1{font-size:26px !important;}
+  .hero-txt p{font-size:13.5px !important;}
+  #hero-schedule{width:46% !important;}
+  .controls-bar .ctrl-pick{min-width:0;flex:1 1 46%;}
+  .ctrl-sep{display:none;}
+  .vt-wrap{flex:1 1 46%;}
+  .view-toggle{justify-content:center;}
+  .ctrl-filter{margin-left:0 !important;flex:1 1 100%;justify-content:center;}
+  /* подсказка про горизонтальный свайп сетки */
+  .sched-panel{position:relative;}
+  .sched-scroll{-webkit-overflow-scrolling:touch;}
+
+  /* ════════════ ПАРТНЁРЫ ════════════ */
+  /* двухколоночный макет → одна колонка, боковая панель уходит вниз */
+  .pl{grid-template-columns:1fr !important;}
+  .phero{min-height:auto !important;}
+  .phero image-slot{width:50% !important;opacity:.5;}
+  .phero-txt{padding:26px 22px !important;max-width:none !important;}
+  .phero-txt h1{font-size:30px !important;}
+  .phero-txt p{font-size:13.5px !important;}
+  .phero-actions{padding:0 22px 24px !important;flex-direction:column;}
+  .btn-hero{justify-content:center;}
+  .filters{padding:14px !important;}
+  .f-field{min-width:0;flex:1 1 46%;}
+  .f-btn{flex:1 1 46%;justify-content:center;}
+  .ptab{padding:12px 14px !important;font-size:14px !important;}
+
+  /* строки заявок/откликов → колоночная раскладка */
+  .rrow{display:flex !important;flex-wrap:wrap;align-items:center;gap:9px 14px !important;padding:15px 16px !important;}
+  .rcell-date{order:1;}
+  .r-chev{order:2;margin-left:auto;}
+  .rcell-player{order:3;flex-basis:100%;}
+  .rcell-loc{order:4;flex-basis:100%;}
+  .lvl,.status-txt{order:5;}
+  .cnt-badge{order:6;}
+  .rrow > .btn{order:7;flex-basis:100%;margin-top:2px;}
+  .rb-grid,.rb-author{grid-template-columns:1fr !important;gap:18px !important;}
+}
+
+/* ───────────────────────── ТЕЛЕФОН ───────────────────────── */
+@media (max-width: 560px){
+  .hero h1{font-size:29px !important;}
+  /* в одну колонку — длинные слова больше не распирают экран */
+  .hero-feats{grid-template-columns:1fr !important;gap:14px !important;}
+  .logo-txt .brand{font-size:17px;}
+  .partners{grid-template-columns:1fr !important;}
+  .foot{grid-template-columns:1fr !important;}
+
+  /* таблица событий → карточки (на телефоне таблица из 4 колонок не читается) */
+  table{display:block;width:100%;}
+  table thead{display:none;}
+  table tbody{display:block;}
+  table tbody tr{display:grid;grid-template-columns:auto auto 1fr;
+    grid-template-areas:"name name name" "date time price";
+    gap:5px 14px;align-items:baseline;padding:15px 2px;border-bottom:1px solid var(--line-soft);}
+  table tbody tr:last-child{border-bottom:none;}
+  table tbody td{display:block;padding:0 !important;border:none !important;font-size:14px;}
+  tbody td:nth-child(1){grid-area:date;color:var(--muted);font-size:13px;}
+  tbody td:nth-child(2){grid-area:time;color:var(--muted);font-size:13px;}
+  tbody td:nth-child(3){grid-area:name;font-size:15.5px;font-weight:600;}
+  tbody td:nth-child(4){grid-area:price;text-align:right;font-weight:700;}
+  tbody td:nth-child(5){display:none;}
+  .ev-name{flex-wrap:wrap;gap:4px 0;}
+  .badge{margin-left:8px;}
+
+  .phero-txt h1{font-size:25px !important;}
+  .f-field{flex-basis:100%;}
+  .f-btn{flex-basis:100%;}
+
+  .controls-bar .ctrl-pick{flex-basis:100%;}
+  .vt-wrap{flex-basis:100%;}
+}
