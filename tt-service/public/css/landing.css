@@ -22,7 +22,10 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{background:var(--bg);color:var(--txt);font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
-body{padding:0 22px 26px;}
+/* Страница не должна ездить влево-вправо: запрещаем горизонтальный скролл.
+   Основную вёрстку держат minmax(0,…)-гриды, это — страховка для краёв (шапка и т.п.). */
+html{overflow-x:hidden;}
+body{padding:0 22px 26px;overflow-x:hidden;}
 .wrap{max-width:1660px;margin:0 auto;}
 a{color:inherit;text-decoration:none;}
 .green{color:var(--green);}
@@ -31,24 +34,24 @@ svg{display:block;}
 
 /* ===== HEADER ===== */
 header{display:flex;align-items:center;gap:30px;padding:18px 4px 22px;}
-.logo{display:flex;align-items:center;gap:14px;}
+.logo{display:flex;align-items:center;gap:14px;flex-shrink:0;}
 .logo-mark{width:48px;height:48px;flex:none;}
-.logo-txt .brand{font-size:23px;font-weight:800;letter-spacing:.5px;line-height:1;}
+.logo-txt .brand{font-size:23px;font-weight:800;letter-spacing:.5px;line-height:1;white-space:nowrap;}
 .logo-txt .sub{font-size:12px;color:var(--muted);margin-top:5px;letter-spacing:.2px;}
 nav{display:flex;align-items:center;gap:34px;margin:0 auto 0 30px;}
 nav a{font-size:15.5px;color:#cfd1ca;font-weight:500;position:relative;padding-bottom:6px;}
 nav a:hover{color:#fff;}
 nav a.active{color:var(--green);}
 nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--green);border-radius:2px;}
-.head-info{display:flex;align-items:flex-start;gap:11px;}
+.head-info{display:flex;align-items:flex-start;gap:11px;flex-shrink:0;}
 .head-info .lbl{font-size:14px;}
 .head-info .lbl b{font-weight:700;font-size:15px;display:block;}
 .head-info .lbl .l1{color:#e7e8e3;}
 .head-info .lbl .l2,.head-info .lbl .l3{color:var(--muted);font-size:13px;line-height:1.45;}
 .head-info .ico-box{color:var(--green);margin-top:2px;}
-.head-phone{margin-left:42px;}
+.head-phone{margin-left:42px;flex-shrink:0;}
 .head-phone .ico-box{margin-top:3px;}
-.head-phone b{font-size:19px;letter-spacing:.3px;}
+.head-phone b{font-size:19px;letter-spacing:.3px;white-space:nowrap;}
 
 /* ===== HERO ===== */
 .hero{position:relative;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:#090a08;
@@ -92,7 +95,7 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
 .link-arrow{display:inline-flex;align-items:center;gap:8px;color:var(--green);font-size:14.5px;font-weight:600;}
 .link-arrow:hover{filter:brightness(1.12);}
 
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px;}
+.grid-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:18px;}
 
 /* events table */
 table{width:100%;border-collapse:collapse;}
@@ -124,15 +127,15 @@ td .parts{color:#cfd1ca;}
 .tag-free{background:#fff;color:#10131a;border-radius:8px;padding:11px 16px;font-weight:800;font-size:13.5px;letter-spacing:.3px;text-transform:uppercase;line-height:1.35;}
 
 /* coaches + partners row */
-.two-col{display:grid;grid-template-columns:47fr 53fr;gap:18px;margin-top:18px;}
-.coaches{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.two-col{display:grid;grid-template-columns:minmax(0,47fr) minmax(0,53fr);gap:18px;margin-top:18px;}
+.coaches{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .coach{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:15px 14px;display:flex;flex-direction:column;}
 .coach-top{display:flex;gap:12px;}
 .avatar{display:grid;place-items:center;font-weight:800;color:var(--green);background:linear-gradient(135deg,#1f2614,#2a3417);overflow:hidden;flex:none;}
 .avatar img{width:100%;height:100%;object-fit:cover;}
 .coach .avatar{width:60px;height:80px;border-radius:10px;font-size:20px;}
 .coach .ci{flex:1;min-width:0;}
-.coach .cname{font-size:14px;font-weight:700;text-align:right;white-space:nowrap;}
+.coach .cname{font-size:14px;font-weight:700;text-align:right;word-break:break-word;}
 .ttw{display:inline-block;background:rgba(198,226,26,.13);border:1px solid rgba(198,226,26,.5);color:var(--green);font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:6px;margin-top:9px;float:right;}
 .coach ul{list-style:none;clear:both;margin-top:14px;display:flex;flex-direction:column;gap:7px;}
 .coach ul li{font-size:12.5px;color:#c2c4bd;display:flex;align-items:center;gap:7px;}
@@ -144,14 +147,14 @@ td .parts{color:#cfd1ca;}
 .btn-sm{background:var(--green);color:#13160a;font-weight:700;font-size:13px;border:none;border-radius:8px;padding:9px 15px;cursor:pointer;white-space:nowrap;}
 .btn-sm:hover{filter:brightness(1.07);}
 
-.partners{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+.partners{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;}
 .partner{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:15px 14px;position:relative;display:flex;flex-direction:column;}
 .partner .ph{display:flex;flex-direction:column;align-items:center;text-align:center;}
 .partner .avatar{width:54px;height:54px;border-radius:50%;font-size:17px;color:var(--txt);background:linear-gradient(135deg,#1d2228,#262d35);}
-.partner .pname{font-size:14.5px;font-weight:700;margin-top:10px;}
+.partner .pname{font-size:13.5px;font-weight:700;margin-top:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .ttw-sm{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;margin-top:7px;border:1px solid;white-space:nowrap;}
 .partner ul{list-style:none;margin-top:14px;display:flex;flex-direction:column;gap:9px;}
-.partner ul li{font-size:12.5px;color:#b9bcb4;display:flex;align-items:center;gap:8px;}
+.partner ul li{font-size:12.5px;color:#b9bcb4;display:flex;align-items:center;gap:8px;overflow:hidden;white-space:nowrap;}
 .partner ul li .pi{color:var(--muted);flex:none;}
 .chat{position:absolute;right:12px;bottom:12px;width:30px;height:30px;border-radius:7px;background:#0c0d0b;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);cursor:pointer;}
 .chat:hover{color:var(--green);border-color:rgba(198,226,26,.4);}
@@ -164,14 +167,30 @@ td .parts{color:#cfd1ca;}
 .fitem span{font-size:12px;color:var(--muted);}
 
 /* ===== RESPONSIVE ===== */
+/* Шапка содержит много элементов (лого + 7 пунктов меню + адрес + телефон).
+   Чтобы она не ломалась на средних экранах, постепенно убираем второстепенное,
+   а ниже мобильного брейкпоинта меню уезжает в бургер (mobile.css). */
+@media(max-width:1500px){
+  header{gap:20px;}
+  nav{gap:22px;margin-left:20px;}
+  .logo-txt .sub{display:none;}      /* длинный подзаголовок съедает ширину */
+  .head-phone{margin-left:24px;}
+}
+@media(max-width:1300px){
+  nav{gap:18px;margin-left:14px;}
+  nav a{font-size:14.5px;}
+  .head-info:not(.head-phone){display:none;}   /* адрес прячем, телефон оставляем */
+}
 @media(max-width:1100px){
   .hero{grid-template-columns:1fr;}
   .booking{margin:0 16px 22px;align-self:auto;}
   .grid-2,.two-col{grid-template-columns:1fr;}
   .partners{grid-template-columns:repeat(3,1fr);}
   .foot{grid-template-columns:repeat(3,1fr);}
-  nav{gap:20px;margin-left:16px;}
-  .head-phone{margin-left:20px;}
+  nav{gap:16px;margin-left:12px;}
+  nav a{font-size:14px;}
+  .head-phone{margin-left:16px;}
+  .head-phone b{font-size:17px;}
 }
 @media(max-width:720px){
   body{padding:0 12px 20px;}

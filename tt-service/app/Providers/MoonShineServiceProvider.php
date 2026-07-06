@@ -6,10 +6,12 @@ namespace App\Providers;
 
 use App\MoonShine\Pages\BookingCalendarPage;
 use App\MoonShine\Pages\ReportsPage;
+use App\MoonShine\Pages\TableOccupancyPage;
 use App\MoonShine\Resources\Booking\BookingResource;
 use App\MoonShine\Resources\Branch\BranchResource;
 use App\MoonShine\Resources\Client\ClientResource;
 use App\MoonShine\Resources\Club\ClubResource;
+use App\MoonShine\Resources\Coach\CoachResource;
 use App\MoonShine\Resources\MoonShineUser\MoonShineUserResource;
 use App\MoonShine\Resources\MoonShineUserRole\MoonShineUserRoleResource;
 use App\MoonShine\Resources\Hall\HallResource;
@@ -47,6 +49,7 @@ class MoonShineServiceProvider extends ServiceProvider
                 HallResource::class,
                 ResourceResource::class,
                 ServiceOfferingResource::class,
+                CoachResource::class,
 
                 // Operations
                 BookingResource::class,
@@ -59,6 +62,7 @@ class MoonShineServiceProvider extends ServiceProvider
             ])
             ->pages([
                 ...$core->getConfig()->getPages(),
+                TableOccupancyPage::class,
                 BookingCalendarPage::class,
                 ReportsPage::class,
             ])
@@ -97,7 +101,7 @@ class MoonShineServiceProvider extends ServiceProvider
                 // админ — только просмотр (Фаза 2: resources.view)
                 $clubStructure = [
                     BranchResource::class, VenueResource::class, HallResource::class,
-                    ResourceResource::class, ServiceOfferingResource::class,
+                    ResourceResource::class, ServiceOfferingResource::class, CoachResource::class,
                 ];
                 if (in_array($class, $clubStructure, true)) {
                     if ($user->hasRole('owner')) {

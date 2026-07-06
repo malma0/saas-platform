@@ -7,10 +7,11 @@ namespace App\MoonShine\Layouts;
 use App\Models\User;
 use App\MoonShine\Pages\BookingCalendarPage;
 use App\MoonShine\Pages\ReportsPage;
-use App\MoonShine\Resources\Booking\BookingResource;
+use App\MoonShine\Pages\TableOccupancyPage;
 use App\MoonShine\Resources\Branch\BranchResource;
 use App\MoonShine\Resources\Client\ClientResource;
 use App\MoonShine\Resources\Club\ClubResource;
+use App\MoonShine\Resources\Coach\CoachResource;
 use App\MoonShine\Resources\Hall\HallResource;
 use App\MoonShine\Resources\Resource\ResourceResource;
 use App\MoonShine\Resources\ServiceOffering\ServiceOfferingResource;
@@ -45,8 +46,9 @@ final class MoonShineLayout extends AppLayout
     protected function menu(): array
     {
         return [
+            // «Сетка столов» = и сетка, и список броней с действиями (заменяет вкладку «Бронирования»)
+            MenuItem::make(TableOccupancyPage::class, 'Сетка столов', 'table-cells'),
             MenuItem::make(BookingCalendarPage::class, 'Календарь броней', 'calendar-days'),
-            MenuItem::make(BookingResource::class, 'Бронирования', 'rectangle-stack'),
             MenuItem::make(ClientResource::class, 'Клиенты', 'users'),
             MenuItem::make(ReportsPage::class, 'Отчёты', 'document-chart-bar'),
 
@@ -56,6 +58,7 @@ final class MoonShineLayout extends AppLayout
                 MenuItem::make(HallResource::class, 'Залы / Столы'),
                 MenuItem::make(ResourceResource::class, 'Ресурсы'),
                 MenuItem::make(ServiceOfferingResource::class, 'Услуги'),
+                MenuItem::make(CoachResource::class, 'Тренеры', 'academic-cap'),
             ], 'building-office-2'),
 
             MenuGroup::make('Администрирование', [

@@ -26,11 +26,30 @@ final class BookingIndexPage extends IndexPage
             Text::make('Публичный ID', 'public_id'),
             Text::make('Филиал', 'branch.name'),
             Text::make('Услуга', 'serviceOffering.name'),
-            Date::make('Начало', 'start_at')->sortable()->format('d.m.Y H:i'),
-            Date::make('Конец', 'end_at')->format('d.m.Y H:i'),
+            Date::make('Начало', 'start_at')->sortable()
+                ->changePreview($this->inBranchTz('start_at')),
+            Date::make('Конец', 'end_at')
+                ->changePreview($this->inBranchTz('end_at')),
             Enum::make('Статус', 'status')->attach(BookingStatus::class)->sortable(),
             Text::make('Примечание', 'notes'),
         ];
+    }
+
+    /**
+     * Колбэк отображения даты в часовом поясе филиала брони (а не в UTC).
+     * Так время в админке совпадает с тем, что видит клиент на сайте.
+     */
+    private function inBranchTz(string $attr): \Closure
+    {
+        return function ($value, $field) use ($attr) {
+            $booking = $field->getData()?->getOriginal();
+            $tz      = $booking?->branch?->timezone ?? config('app.timezone', 'UTC');
+            $dt      = $booking?->{$attr};
+
+            return $dt instanceof \Carbon\CarbonInterface
+                ? $dt->copy()->timezone($tz)->format('d.m.Y H:i')
+                : (string) $value;
+        };
     }
 
     protected function filters(): iterable

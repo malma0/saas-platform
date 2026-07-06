@@ -50,6 +50,10 @@ class Client extends Model
         'is_blocked',
         'block_reason',
         'created_by',
+        'ktokyda_user_id',
+        'ktokyda_access_token',
+        'ktokyda_refresh_token',
+        'ktokyda_token_expires_at',
     ];
 
     protected function casts(): array

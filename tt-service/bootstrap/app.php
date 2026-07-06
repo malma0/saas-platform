@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
 
+        // tt_vw (ширину окна) ставит device.js открытым текстом — не шифруем,
+        // иначе сервер не сможет её прочитать (App\Support\Device).
+        $middleware->encryptCookies(except: ['tt_vw']);
+
         // Доверяем заголовкам прокси (нужно при работе за туннелем/HTTPS-прокси:
         // ngrok, Cloudflare Tunnel — чтобы Laravel генерировал https-ссылки).
         $middleware->trustProxies(at: '*');

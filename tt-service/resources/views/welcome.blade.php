@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Теннис Клуб НСК — Премиальный клуб настольного тенниса</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="{{ asset('js/device.js') }}"></script>
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
-<link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
 </head>
 @php
   $months = ['','января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
@@ -45,7 +46,7 @@
       <a href="#">Клуб</a>
       <a href="/schedule">Расписание</a>
       <a href="#">Турниры</a>
-      <a href="#">Тренеры</a>
+      <a href="/coaches">Тренеры</a>
       <a href="/partners">Партнёры</a>
       <a href="#">Контакты</a>
     </nav>
@@ -64,6 +65,10 @@
         <div class="l2">Ежедневно 8:00 – 23:00</div>
       </div>
     </div>
+    <button onclick="ttOpenAuth()" style="display:flex;align-items:center;gap:8px;background:rgba(198,226,26,.12);border:1px solid rgba(198,226,26,.35);border-radius:10px;padding:9px 16px;color:#c6e21a;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;align-self:center;margin-left:auto;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
+      Войти
+    </button>
   </header>
 
   <!-- HERO -->
@@ -189,45 +194,39 @@
     <div class="block">
       <div class="block-head">
         <h2>Наши тренеры</h2>
-        <a href="#" class="link-arrow">Просмотреть всех <svg width="16" height="16" viewBox="0 0 24 24" class="ico"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a href="/coaches" class="link-arrow">Просмотреть всех <svg width="16" height="16" viewBox="0 0 24 24" class="ico"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
       <div class="coaches">
+        @forelse($coaches as $coach)
         <div class="coach">
           <div class="coach-top">
-            <div class="avatar">АС</div>
-            <div class="ci"><div class="cname">Алексей Смирнов</div><span class="ttw">TTW 2100</span></div>
+            <div class="avatar">{{ $coach->initials() }}</div>
+            <div class="ci">
+              <div class="cname">{{ $coach->name }}</div>
+              @if($coach->rank)<span class="ttw">{{ $coach->rank }}</span>@endif
+            </div>
           </div>
           <ul>
-            <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m5 12 5 5 9-11"/></svg></span>КМС</li>
-            <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m5 12 5 5 9-11"/></svg></span>Опыт 10+ лет</li>
-            <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m5 12 5 5 9-11"/></svg></span>Индивидуальный подход</li>
+            @if($coach->rank)
+            <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m5 12 5 5 9-11"/></svg></span>{{ $coach->rank }}</li>
+            @endif
+            @if($coach->experience_years)
+            <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m5 12 5 5 9-11"/></svg></span>Опыт {{ $coach->experience_years }} лет</li>
+            @endif
+            @if($coach->specialization)
+            <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m5 12 5 5 9-11"/></svg></span>{{ $coach->specialization }}</li>
+            @endif
           </ul>
-          <div class="coach-foot"><div class="cp"><b>1 800 ₽</b> <span>/ 60 мин</span></div><button class="btn-sm">Заказать</button></div>
-        </div>
-        <div class="coach">
-          <div class="coach-top">
-            <div class="avatar">МИ</div>
-            <div class="ci"><div class="cname">Мария Иванова</div><span class="ttw">TTW 1950</span></div>
+          <div class="coach-foot">
+            <div class="cp"><b>{{ number_format($coach->hourly_rate_rub, 0, '.', "\u{00A0}") }} ₽</b> <span>/ 60 мин</span></div>
+            <button class="btn-sm" onclick="location.href='/coaches'">Заказать</button>
           </div>
-          <ul>
-            <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m5 12 5 5 9-11"/></svg></span>МС</li>
-            <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m5 12 5 5 9-11"/></svg></span>Техника и тактика</li>
-            <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m5 12 5 5 9-11"/></svg></span>Работа с любым уровнем</li>
-          </ul>
-          <div class="coach-foot"><div class="cp"><b>1 600 ₽</b> <span>/ 60 мин</span></div><button class="btn-sm">Заказать</button></div>
         </div>
-        <div class="coach">
-          <div class="coach-top">
-            <div class="avatar">ДВ</div>
-            <div class="ci"><div class="cname">Дмитрий Власов</div><span class="ttw">TTW 2000</span></div>
-          </div>
-          <ul>
-            <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m5 12 5 5 9-11"/></svg></span>МС</li>
-            <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m5 12 5 5 9-11"/></svg></span>Соревновательная практика</li>
-            <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m5 12 5 5 9-11"/></svg></span>Повышение рейтинга</li>
-          </ul>
-          <div class="coach-foot"><div class="cp"><b>1 800 ₽</b> <span>/ 60 мин</span></div><button class="btn-sm">Заказать</button></div>
+        @empty
+        <div class="coach" style="opacity:.5;align-items:center;justify-content:center;min-height:160px;">
+          <div style="color:var(--muted);font-size:14px;">Тренеры появятся скоро</div>
         </div>
+        @endforelse
       </div>
     </div>
 
@@ -320,8 +319,48 @@
   </footer>
 
 </div>
+{{-- Модал авторизации / регистрации --}}
+<div id="auth-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:#101210;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:30px 26px;width:92%;max-width:380px;position:relative;">
+    <button onclick="ttCloseAuth()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:#8c8f86;font-size:24px;cursor:pointer;line-height:1;">×</button>
+
+    {{-- Шаг 1: ввод телефона --}}
+    <div id="am-step1">
+      <div style="font-size:19px;font-weight:800;margin-bottom:8px;">Личный кабинет</div>
+      <div style="font-size:13.5px;color:#8c8f86;margin-bottom:22px;line-height:1.5;">Введите номер телефона, чтобы войти или зарегистрироваться.</div>
+      <input type="tel" id="am-phone" placeholder="+7 900 000-00-00"
+        style="width:100%;background:#0c0d0b;border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:14px 15px;color:#f0f1ec;font-size:15px;font-family:inherit;outline:none;margin-bottom:12px;">
+      <div id="am-err1" style="display:none;color:#f0a090;font-size:13px;margin-bottom:10px;"></div>
+      <button onclick="amFindPhone()" id="am-btn1" style="width:100%;background:#c6e21a;color:#13160a;font-size:15px;font-weight:800;border:none;border-radius:11px;padding:14px;cursor:pointer;font-family:inherit;">Продолжить</button>
+    </div>
+
+    {{-- Шаг 2: регистрация --}}
+    <div id="am-step2" style="display:none;">
+      <div style="font-size:19px;font-weight:800;margin-bottom:8px;">Регистрация</div>
+      <div style="font-size:13.5px;color:#8c8f86;margin-bottom:18px;line-height:1.5;">Номер <strong id="am-phone-display" style="color:#f0f1ec;"></strong> не найден. Заполните данные — создадим аккаунт.</div>
+      <div id="am-err2" style="display:none;color:#f0a090;font-size:13px;margin-bottom:10px;"></div>
+      <input type="text" id="am-fname" placeholder="Имя *"
+        style="width:100%;background:#0c0d0b;border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:14px 15px;color:#f0f1ec;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;">
+      <input type="text" id="am-lname" placeholder="Фамилия"
+        style="width:100%;background:#0c0d0b;border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:14px 15px;color:#f0f1ec;font-size:15px;font-family:inherit;outline:none;margin-bottom:12px;">
+      <button onclick="amRegister()" id="am-btn2" style="width:100%;background:#c6e21a;color:#13160a;font-size:15px;font-weight:800;border:none;border-radius:11px;padding:14px;cursor:pointer;font-family:inherit;">Зарегистрироваться</button>
+      <button onclick="amBackToPhone()" style="width:100%;background:transparent;border:none;color:#8c8f86;font-size:13px;margin-top:10px;cursor:pointer;font-family:inherit;">← Другой номер</button>
+    </div>
+
+    {{-- Шаг 3: КтоКуда звонок --}}
+    <div id="am-step3" style="display:none;">
+      <div style="font-size:19px;font-weight:800;margin-bottom:8px;">Подключить КтоКуда</div>
+      <div style="font-size:13.5px;color:#8c8f86;margin-bottom:18px;line-height:1.5;">Аккаунт создан! КтоКуда позвонит на <strong id="am-kk-phone" style="color:#f0f1ec;"></strong>.<br>Смотрите на <strong style="color:#f0f1ec;">номер звонящего</strong> — его последние <strong style="color:#f0f1ec;">4 цифры</strong> это ваш пароль. Звонок можно сбросить.</div>
+      <div id="am-err3" style="display:none;color:#f0a090;font-size:13px;margin-bottom:10px;"></div>
+      <input type="text" id="am-kk-pw" placeholder="4 цифры из звонка"
+        style="width:100%;background:#0c0d0b;border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:14px 15px;color:#f0f1ec;font-size:15px;font-family:inherit;outline:none;margin-bottom:12px;">
+      <button onclick="amKkVerify()" style="width:100%;background:#c6e21a;color:#13160a;font-size:15px;font-weight:800;border:none;border-radius:11px;padding:14px;cursor:pointer;font-family:inherit;">Подключить и войти</button>
+      <button onclick="amSkipKk()" style="width:100%;background:transparent;border:none;color:#8c8f86;font-size:13px;margin-top:10px;cursor:pointer;font-family:inherit;">Пропустить, войти без КтоКуда</button>
+    </div>
+  </div>
+</div>
+
 <script src="{{ asset('js/dropdowns.js') }}"></script>
-<script src="{{ asset('js/mobile.js') }}"></script>
 <script>
   // «Найти свободный стол» → переход на расписание с выбранными параметрами.
   (function () {
@@ -343,6 +382,140 @@
       window.location.href = '/schedule?' + qs.toString();
     });
   })();
+</script>
+
+<script>
+  // ---- Auth modal ----
+  const AM_CSRF = document.querySelector('meta[name=csrf-token]')?.content ?? '';
+  let amPhone = '';
+
+  function ttOpenAuth() {
+    document.getElementById('auth-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('am-phone').focus(), 100);
+  }
+  function ttCloseAuth() {
+    document.getElementById('auth-modal').style.display = 'none';
+    amReset();
+  }
+  function amReset() {
+    ['am-step2','am-step3'].forEach(id => document.getElementById(id).style.display='none');
+    document.getElementById('am-step1').style.display = 'block';
+    ['am-err1','am-err2','am-err3'].forEach(id => document.getElementById(id).style.display='none');
+    document.getElementById('am-phone').value = '';
+    document.getElementById('am-fname').value = '';
+    document.getElementById('am-lname').value = '';
+    document.getElementById('am-kk-pw').value = '';
+  }
+  function amBackToPhone() {
+    document.getElementById('am-step2').style.display = 'none';
+    document.getElementById('am-step1').style.display = 'block';
+    document.getElementById('am-err2').style.display = 'none';
+  }
+
+  async function amFindPhone() {
+    const phone = document.getElementById('am-phone').value.trim();
+    const err   = document.getElementById('am-err1');
+    const btn   = document.getElementById('am-btn1');
+    err.style.display = 'none';
+    if (!phone) { err.textContent = 'Введите номер телефона'; err.style.display='block'; return; }
+    amPhone = phone;
+    btn.disabled = true; btn.textContent = 'Проверяем...';
+    try {
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-TOKEN':AM_CSRF},
+        body: JSON.stringify({ phone }),
+        signal: AbortSignal.timeout(15000)
+      });
+      const data = await res.json();
+      btn.disabled = false; btn.textContent = 'Продолжить';
+      if (data.returning) {
+        try { localStorage.setItem('tt_user', JSON.stringify({ name: data.name, phone })); } catch(e){}
+        location.href = data.account_url;
+      } else {
+        document.getElementById('am-phone-display').textContent = phone;
+        document.getElementById('am-step1').style.display = 'none';
+        document.getElementById('am-step2').style.display = 'block';
+        setTimeout(() => document.getElementById('am-fname').focus(), 100);
+      }
+    } catch(e) {
+      btn.disabled = false; btn.textContent = 'Продолжить';
+      err.textContent = 'Ошибка соединения. Попробуйте ещё раз.';
+      err.style.display = 'block';
+    }
+  }
+
+  async function amRegister() {
+    const fname = document.getElementById('am-fname').value.trim();
+    const lname = document.getElementById('am-lname').value.trim();
+    const btn   = document.getElementById('am-btn2');
+    const err   = document.getElementById('am-err2');
+    err.style.display = 'none';
+    if (!fname) { err.textContent = 'Введите имя'; err.style.display='block'; return; }
+    btn.disabled = true; btn.textContent = 'Создаём аккаунт...';
+    let data;
+    try {
+      const res = await fetch('/auth/register', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-TOKEN':AM_CSRF},
+        body: JSON.stringify({ phone: amPhone, first_name: fname, last_name: lname }),
+        signal: AbortSignal.timeout(30000)
+      });
+      data = await res.json();
+    } catch(e) {
+      btn.disabled = false; btn.textContent = 'Зарегистрироваться';
+      err.textContent = 'Ошибка соединения. Попробуйте ещё раз.';
+      err.style.display = 'block';
+      return;
+    }
+    btn.disabled = false; btn.textContent = 'Зарегистрироваться';
+    if (!data.ok) {
+      err.textContent = data.message || 'Ошибка регистрации';
+      err.style.display = 'block';
+      return;
+    }
+    try { localStorage.setItem('tt_user', JSON.stringify({ name: fname + (lname ? ' '+lname : ''), phone: amPhone })); } catch(e){}
+    if (data.kk_sent) {
+      document.getElementById('am-kk-phone').textContent = amPhone;
+      document.getElementById('am-step2').style.display = 'none';
+      document.getElementById('am-step3').style.display = 'block';
+      setTimeout(() => document.getElementById('am-kk-pw').focus(), 100);
+    } else {
+      location.href = data.account_url;
+    }
+  }
+
+  async function amKkVerify() {
+    const pw  = document.getElementById('am-kk-pw').value.trim();
+    const err = document.getElementById('am-err3');
+    err.style.display = 'none';
+    if (!pw) { err.textContent = 'Введите пароль из звонка'; err.style.display='block'; return; }
+    try {
+      const res = await fetch('/ktokyda/link', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-TOKEN':AM_CSRF},
+        body: JSON.stringify({ phone: amPhone, password: pw }),
+        signal: AbortSignal.timeout(15000)
+      });
+      const data = await res.json();
+      if (data.ok) {
+        location.href = '/account?phone=' + encodeURIComponent(amPhone);
+      } else {
+        err.textContent = data.error || 'Неверный пароль';
+        err.style.display = 'block';
+      }
+    } catch(e) {
+      err.textContent = 'Ошибка соединения. Попробуйте ещё раз.';
+      err.style.display = 'block';
+    }
+  }
+
+  function amSkipKk() { location.href = '/account?phone=' + encodeURIComponent(amPhone); }
+
+  // Enter в поле телефона
+  document.getElementById('am-phone').addEventListener('keydown', e => { if(e.key==='Enter') amFindPhone(); });
+  // Закрыть по клику на фон
+  document.getElementById('auth-modal').addEventListener('click', e => { if(e.target===e.currentTarget) ttCloseAuth(); });
 </script>
 </body>
 </html>

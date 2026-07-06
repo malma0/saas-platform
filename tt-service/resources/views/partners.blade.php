@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
+<script src="{{ asset('js/device.js') }}"></script>
 <style>
 :root{
   --bg:#0a0b09;--panel:#101210;--panel-2:#151714;--panel-3:#191c16;
@@ -66,11 +66,11 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
 .filters{display:flex;align-items:flex-end;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px;flex-wrap:wrap;}
 .f-field{display:flex;flex-direction:column;gap:7px;min-width:170px;flex:1;}
 .f-field .fl{font-size:11px;font-weight:600;letter-spacing:.6px;color:var(--muted);text-transform:uppercase;}
-.f-sel{display:flex;align-items:center;gap:10px;background:#0c0d0b;border:1px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer;transition:border-color .14s;}
+.f-sel{display:flex;align-items:center;gap:10px;background:#0c0d0b;border:1px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer;transition:border-color .14s;overflow:hidden;}
 .f-sel:hover{border-color:rgba(198,226,26,.35);}
 .f-sel .fi{color:var(--green);flex:none;}
-.f-sel .fv{flex:1;font-size:14.5px;font-weight:600;white-space:nowrap;}
-.f-sel .chev{color:var(--muted);}
+.f-sel .fv{flex:1;min-width:0;font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.f-sel .chev{flex:none;color:var(--muted);}
 .f-btn{display:flex;align-items:center;gap:8px;border-radius:10px;padding:12px 20px;font-size:14.5px;font-weight:700;cursor:pointer;white-space:nowrap;border:1px solid var(--line);background:#0c0d0b;transition:all .14s;height:44px;}
 .f-btn.search{color:var(--green);border-color:rgba(198,226,26,.4);}
 .f-btn.search:hover{background:rgba(198,226,26,.08);}
@@ -122,6 +122,10 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
 .cal-legend .li-info{margin-left:auto;display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--muted);max-width:330px;line-height:1.4;}
 .cal-panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
 .cal-scroll{overflow-x:auto;}
+.cal-scroll::-webkit-scrollbar{height:5px;}
+.cal-scroll::-webkit-scrollbar-track{background:var(--panel);}
+.cal-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:3px;}
+.cal-scroll::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.32);}
 .cal{display:grid;grid-template-columns:64px repeat(7,minmax(132px,1fr));min-width:980px;}
 .cal-head{display:contents;}
 .cal-hcell{padding:13px 8px;text-align:center;font-size:13px;font-weight:700;border-bottom:1px solid var(--line);border-left:1px solid var(--line-soft);}
@@ -131,24 +135,29 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
 .cal-hcell.weekend .d-date{color:#b06a5e;}
 .cal-hcell.tcorner{border-left:none;text-align:left;padding-left:14px;color:var(--muted);font-size:11px;letter-spacing:.5px;}
 .cal-timecol{position:relative;border-right:1px solid var(--line-soft);}
-.cal-timecol .th{position:absolute;left:0;right:0;text-align:center;font-size:11.5px;color:var(--muted-2);transform:translateY(-50%);}
+.cal-timecol .th{position:absolute;left:0;right:0;text-align:center;font-size:11.5px;color:var(--muted-2);transform:translateY(-50%) translateZ(0);}
 .cal-col{position:relative;border-left:1px solid var(--line-soft);}
 .cal-col .hline{position:absolute;left:0;right:0;height:1px;background:rgba(255,255,255,.035);}
-.cal-card{position:absolute;left:6px;right:6px;border-radius:10px;padding:9px 10px;cursor:pointer;border:1px solid;overflow:hidden;transition:filter .12s,transform .12s;z-index:2;}
+.cal-card{position:absolute;left:6px;right:6px;border-radius:10px;padding:9px 10px;cursor:pointer;border:1px solid;overflow:hidden;transition:filter .12s,transform .12s;z-index:2;transform:translateZ(0);-webkit-font-smoothing:antialiased;}
 .cal-card:hover{filter:brightness(1.1);transform:translateY(-1px);}
 .cal-card .cc-top{display:flex;align-items:center;gap:8px;}
-.cal-card .cc-name{font-size:13px;font-weight:700;line-height:1.1;}
-.cal-card .cc-lvl{font-size:11.5px;font-weight:600;margin-top:2px;}
+.cal-card .cc-txt{flex:1;min-width:0;overflow:hidden;}
+.cal-card .cc-name{font-size:13px;font-weight:700;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-card .cc-lvl{font-size:11.5px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-card .cc-loc{font-size:11px;color:var(--muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-card .cc-status{display:flex;align-items:center;gap:6px;font-size:11px;margin-top:5px;font-weight:600;white-space:nowrap;overflow:hidden;}
 .cal-card .cc-loc{font-size:11px;color:var(--muted);margin-top:6px;}
 .cal-card .cc-status{display:flex;align-items:center;gap:6px;font-size:11px;margin-top:5px;font-weight:600;}
 .cal-card.c-active{background:rgba(50,70,30,.4);border-color:rgba(198,226,26,.35);}
 .cal-card.c-resp{background:rgba(28,52,82,.42);border-color:rgba(74,144,226,.38);}
 .cal-card.c-conf{background:rgba(58,42,86,.42);border-color:rgba(154,124,226,.38);}
 .cal-card.c-past{background:rgba(40,42,38,.5);border-color:var(--line);opacity:.65;}
-.cal-card.c-multi{background:linear-gradient(135deg,#5a3410,#7a4514);border:1.5px solid var(--orange);box-shadow:0 0 0 1px rgba(226,149,74,.3),0 8px 26px rgba(226,149,74,.25);display:flex;flex-direction:column;gap:4px;justify-content:center;z-index:5;}
-.cal-card.c-multi .m-count{font-size:16px;font-weight:800;color:#fff;}
-.cal-card.c-multi .m-time{font-size:12px;color:#f0d6b8;font-weight:600;}
-.cal-card.c-multi .m-hint{font-size:11px;color:#e8c49a;margin-top:2px;}
+.cal-card.c-multi{background:linear-gradient(135deg,#5a3410,#7a4514);border:1.5px solid var(--orange);box-shadow:0 0 0 1px rgba(226,149,74,.3),0 8px 26px rgba(226,149,74,.25);display:flex;flex-direction:column;gap:2px;justify-content:center;z-index:5;position:relative;}
+.cal-card.c-multi .new-badge{position:absolute;top:7px;right:7px;font-size:9px;padding:2px 6px;letter-spacing:.3px;}
+.cal-card.c-multi .m-count{font-size:20px;font-weight:800;color:#fff;line-height:1;}
+.cal-card.c-multi .m-sub{font-size:10.5px;color:#f0d6b8;font-weight:600;margin-top:1px;}
+.cal-card.c-multi .m-time{font-size:11px;color:#f0d6b8;font-weight:600;margin-top:3px;}
+.cal-card.c-multi .m-hint{font-size:10px;color:#e8c49a;}
 .cal-card.c-multi.sel{box-shadow:0 0 0 2px var(--orange),0 8px 30px rgba(226,149,74,.4);}
 
 /* ── REQUEST / RESPONSE LISTS ───────── */
@@ -287,7 +296,7 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
     <a href="#">Клуб</a>
     <a href="/schedule">Расписание</a>
     <a href="#">Турниры</a>
-    <a href="#">Тренеры</a>
+    <a href="/coaches">Тренеры</a>
     <a href="/partners" class="active">Партнёры</a>
     <a href="#">Контакты</a>
   </nav>
@@ -367,6 +376,5 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
 <script src="{{ asset('js/partners.js') }}"></script>
 <script src="{{ asset('js/dropdowns.js') }}"></script>
 <script src="{{ asset('js/auth.js') }}"></script>
-<script src="{{ asset('js/mobile.js') }}"></script>
 </body>
 </html>

@@ -89,20 +89,18 @@
 
     <!-- LOGIN -->
     <div class="au-pane active" id="au-login">
-      <div class="au-title">С возвращением</div>
-      <div class="au-sub">Войдите, чтобы бронировать столы и находить партнёров</div>
+      <div class="au-title">Вход в кабинет</div>
+      <div class="au-sub">Введите телефон — покажем ваши брони. Если бронируете впервые, добавьте имя.</div>
       <div class="au-tabs"><button class="au-tab active" data-go="login">Вход</button><button class="au-tab" data-go="register">Регистрация</button></div>
-      <div class="au-field"><label>E-mail или телефон</label><div class="au-input">${ic(I_MAIL)}<input type="text" placeholder="example@mail.ru"></div></div>
-      <div class="au-field"><label>Пароль</label><div class="au-input">${ic(I_LOCK)}<input type="password" placeholder="••••••••" id="au-p1">${eye}</div></div>
-      <div class="au-row">
-        <label class="au-check"><input type="checkbox" checked><span class="au-box">${CHK}</span>Запомнить меня</label>
-        <span class="au-link">Забыли пароль?</span>
-      </div>
-      <button class="au-submit" data-submit>Войти</button>
+      <div class="au-field"><label>Телефон</label><div class="au-input">${ic(I_PHONE)}<input type="tel" inputmode="tel" placeholder="+7 ___ ___-__-__" id="au-phone" autocomplete="tel"></div></div>
+      <div class="au-field"><label>Имя <span style="color:#5e615a;font-weight:500">— если впервые</span></label><div class="au-input">${ic(I_USER)}<input type="text" placeholder="Как к вам обращаться" id="au-name" autocomplete="name"></div></div>
+      <div class="au-field"><label>Пароль <span style="color:#5e615a;font-weight:500">— скоро, пока не нужен</span></label><div class="au-input" style="opacity:.55"><span style="color:#6f726a">${ic(I_LOCK)}</span><input type="password" placeholder="Появится позже" id="au-p1" disabled>${eye}</div></div>
+      <div class="au-err" id="au-login-err" style="display:none;color:#f0a090;font-size:13px;font-weight:600;margin:-6px 0 14px;"></div>
+      <button class="au-submit" data-submit="login">Войти</button>
       <div class="au-or">или войдите через</div>
       <div class="au-socials">
-        <button class="au-soc"><svg width="17" height="17" viewBox="0 0 24 24"><path fill="#5181b8" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>VK</button>
-        <button class="au-soc"><svg width="17" height="17" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#fff"/><path fill="#ea4335" d="M12 7a5 5 0 0 1 4.5 2.8L19 8A8 8 0 0 0 4 12h3a5 5 0 0 1 5-5z"/></svg>Google</button>
+        <button class="au-soc" type="button" title="Скоро"><svg width="17" height="17" viewBox="0 0 24 24"><path fill="#5181b8" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>VK</button>
+        <button class="au-soc" type="button" title="Скоро"><svg width="17" height="17" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#fff"/><path fill="#ea4335" d="M12 7a5 5 0 0 1 4.5 2.8L19 8A8 8 0 0 0 4 12h3a5 5 0 0 1 5-5z"/></svg>Google</button>
       </div>
       <div class="au-foot">Нет аккаунта? <span data-go="register">Создать</span></div>
     </div>
@@ -112,12 +110,13 @@
       <div class="au-title">Создать аккаунт</div>
       <div class="au-sub">Регистрация займёт меньше минуты</div>
       <div class="au-tabs"><button class="au-tab" data-go="login">Вход</button><button class="au-tab active" data-go="register">Регистрация</button></div>
-      <div class="au-field"><label>Имя</label><div class="au-input">${ic(I_USER)}<input type="text" placeholder="Алексей"></div></div>
-      <div class="au-field"><label>E-mail</label><div class="au-input">${ic(I_MAIL)}<input type="email" placeholder="example@mail.ru"></div></div>
-      <div class="au-field"><label>Телефон</label><div class="au-input">${ic(I_PHONE)}<input type="tel" placeholder="+7 (___) ___-__-__"></div></div>
-      <div class="au-field"><label>Пароль</label><div class="au-input">${ic(I_LOCK)}<input type="password" placeholder="Придумайте пароль" id="au-p2">${eye}</div></div>
+      <div class="au-field"><label>Имя</label><div class="au-input">${ic(I_USER)}<input type="text" placeholder="Алексей" id="au-r-name" autocomplete="name"></div></div>
+      <div class="au-field"><label>E-mail <span style="color:#5e615a;font-weight:500">— скоро</span></label><div class="au-input" style="opacity:.55">${ic(I_MAIL)}<input type="email" placeholder="Появится позже" id="au-r-email" disabled></div></div>
+      <div class="au-field"><label>Телефон</label><div class="au-input">${ic(I_PHONE)}<input type="tel" placeholder="+7 ___ ___-__-__" id="au-r-phone" autocomplete="tel"></div></div>
+      <div class="au-field"><label>Пароль <span style="color:#5e615a;font-weight:500">— скоро</span></label><div class="au-input" style="opacity:.55">${ic(I_LOCK)}<input type="password" placeholder="Появится позже" id="au-p2" disabled>${eye}</div></div>
+      <div class="au-err" id="au-reg-err" style="display:none;color:#f0a090;font-size:13px;font-weight:600;margin:-2px 0 14px;"></div>
       <label class="au-check" style="margin:6px 0 18px">${'<input type="checkbox" checked>'}<span class="au-box">${CHK}</span><span style="line-height:1.4">Соглашаюсь с <span class="au-link">условиями</span> и политикой конфиденциальности</span></label>
-      <button class="au-submit" data-submit>Зарегистрироваться</button>
+      <button class="au-submit" data-submit="register">Продолжить</button>
       <div class="au-foot">Уже есть аккаунт? <span data-go="login">Войти</span></div>
     </div>
 
@@ -137,31 +136,111 @@
     overlay.querySelectorAll('.au-pane').forEach(p=>p.classList.remove('active'));
     overlay.querySelector('#au-'+pane).classList.add('active');
   }
-  function open(mode){ overlay.classList.add('open'); show(mode==='register'?'register':'login'); }
+  function open(mode){ overlay.classList.add('open'); show(mode==='register'?'register':'login');
+    const f = overlay.querySelector(mode==='register'?'#au-r-phone':'#au-phone'); if(f) setTimeout(()=>f.focus(),60); }
   function close(){ overlay.classList.remove('open'); }
   window.openAuth = open;
 
-  overlay.addEventListener('click', e=>{
+  // ── Состояние входа клиента (лёгкая «сессия» по телефону) ──────────────
+  // Хранится в localStorage. Задел: позже добавим серверную сессию + пароль.
+  const KEY = 'tt_user';
+  const ttAuth = {
+    get(){ try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(_){ return null; } },
+    set(u){ localStorage.setItem(KEY, JSON.stringify(u)); syncHeader(); },
+    clear(){ localStorage.removeItem(KEY); syncHeader(); },
+    isLoggedIn(){ return !!(this.get() && this.get().phone); },
+  };
+  window.ttAuth = ttAuth;
+
+  function csrf(){ const m=document.querySelector('meta[name="csrf-token"]'); return m ? m.content : ''; }
+  function showErr(id, msg){ const el=document.getElementById(id); if(el){ el.textContent=msg||''; el.style.display=msg?'block':'none'; } }
+
+  // Обновляет кнопку «Войти» в шапке → имя клиента (ведёт в кабинет) либо «Войти».
+  function syncHeader(){
+    const u = ttAuth.get();
+    document.querySelectorAll('.btn-cabinet').forEach(btn=>{
+      const label = btn.querySelector('[data-au-label]');
+      if(u && u.phone){
+        const first = (u.name||'Кабинет').split(/\s+/)[0];
+        if(label) label.textContent = first; else btn.dataset.fallbackText = first;
+        btn.setAttribute('data-logged','1');
+        btn.title = 'Открыть кабинет ('+u.phone+')';
+      } else {
+        if(label) label.textContent = 'Войти';
+        btn.removeAttribute('data-logged');
+        btn.title = 'Войти';
+      }
+    });
+  }
+
+  async function doLogin(phone, name){
+    const res = await fetch('/auth/login', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':csrf()},
+      body: JSON.stringify({ phone, name })
+    });
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok || !data.ok){ throw new Error(data.message || 'Не удалось войти. Проверьте телефон.'); }
+    return data; // {returning, name, phone, account_url}
+  }
+
+  function finishLogin(data, isReg){
+    const user = { name: data.name || '', phone: data.phone };
+    ttAuth.set(user);
+    // Сообщаем странице (например, расписанию). Если она продолжила свой
+    // сценарий (отложенная бронь) — не показываем общий экран «Вы вошли».
+    let handled = false;
+    if(typeof window.ttOnLogin === 'function'){ try { handled = window.ttOnLogin(user) === true; } catch(_){} }
+    if(handled){ close(); return; }
+    document.getElementById('au-done-title').textContent = isReg ? 'Аккаунт создан!' : (data.returning ? 'С возвращением!' : 'Вы вошли!');
+    document.getElementById('au-done-text').textContent  = (data.name ? data.name + ', в' : 'В') + 'ы вошли в кабинет Теннис Клуб НСК. Теперь можно бронировать столы.';
+    show('success');
+  }
+
+  overlay.addEventListener('click', async e=>{
     if(e.target===overlay) return close();
     const go=e.target.closest('[data-go]'); if(go){ show(go.dataset.go); return; }
     if(e.target.closest('#au-close')) return close();
     const eyeBtn=e.target.closest('.au-eye');
-    if(eyeBtn){ const inp=eyeBtn.parentElement.querySelector('input'); inp.type=inp.type==='password'?'text':'password'; return; }
+    if(eyeBtn){ const inp=eyeBtn.parentElement.querySelector('input'); if(!inp.disabled) inp.type=inp.type==='password'?'text':'password'; return; }
+
     const sub=e.target.closest('[data-submit]');
     if(sub){
-      const isReg=overlay.querySelector('#au-register').classList.contains('active');
-      document.getElementById('au-done-title').textContent = isReg?'Аккаунт создан!':'Вы вошли!';
-      document.getElementById('au-done-text').textContent  = isReg?'Добро пожаловать в Теннис Клуб НСК. Теперь можно бронировать столы.':'Рады видеть вас снова.';
-      show('success');
+      const mode = sub.getAttribute('data-submit');
+      const isReg = mode==='register';
+      const phone = (document.getElementById(isReg?'au-r-phone':'au-phone').value||'').trim();
+      const name  = (document.getElementById(isReg?'au-r-name':'au-name').value||'').trim();
+      const errId = isReg ? 'au-reg-err' : 'au-login-err';
+      showErr(errId,'');
+      if(phone.length < 5){ showErr(errId, 'Укажите номер телефона.'); return; }
+      if(isReg && name.length < 2){ showErr(errId, 'Укажите имя.'); return; }
+      sub.disabled=true; const lbl=sub.textContent; sub.textContent='Входим…';
+      try {
+        const data = await doLogin(phone, name);
+        finishLogin(data, isReg);
+      } catch(err){
+        showErr(errId, err.message || 'Сеть недоступна. Попробуйте ещё раз.');
+      } finally { sub.disabled=false; sub.textContent=lbl; }
       return;
     }
     if(e.target.closest('#au-done-ok')) return close();
   });
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
 
-  // wire triggers
+  // wire triggers: вошедший — в кабинет, гость — окно входа.
   document.addEventListener('click', e=>{
-    if(e.target.closest('[data-auth-open], .btn-cabinet, .user-chip')){ e.preventDefault(); open('login'); }
+    const trig = e.target.closest('[data-auth-open], .btn-cabinet, .user-chip');
+    if(!trig) return;
+    e.preventDefault();
+    const u = ttAuth.get();
+    if(u && u.phone && !trig.hasAttribute('data-force-auth')){
+      window.location.href = '/account?phone=' + encodeURIComponent(u.phone);
+    } else {
+      open('login');
+    }
   });
+
+  document.addEventListener('DOMContentLoaded', syncHeader);
+  syncHeader();
 
 })();

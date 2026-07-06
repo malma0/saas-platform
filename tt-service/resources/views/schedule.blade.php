@@ -5,17 +5,21 @@
     $ts = strtotime("+{$offset} days");
     return date('j', $ts) . ' ' . $months[(int)date('n', $ts)] . ', ' . $days[(int)date('w', $ts)];
   };
+  // Подпись выбранной даты расписания (для пикера/сайдбара после перехода ?date=)
+  $schedTs    = strtotime($scheduleDate ?? 'today');
+  $schedLabel = date('j', $schedTs) . ' ' . $months[(int)date('n', $schedTs)] . ', ' . $days[(int)date('w', $schedTs)];
 @endphp
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Расписание — Теннис Клуб НСК</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
+<script src="{{ asset('js/device.js') }}"></script>
 <style>
 :root{
   --bg:#0a0b09;--panel:#101210;--panel-2:#151714;
@@ -26,7 +30,8 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{background:var(--bg);color:var(--txt);font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
-body{padding:0 22px 30px;}
+html{overflow-x:hidden;}
+body{padding:0 22px 30px;overflow-x:hidden;}
 .wrap{max-width:1660px;margin:0 auto;}
 a{color:inherit;text-decoration:none;}
 .green{color:var(--green);}
@@ -37,7 +42,7 @@ svg{display:block;}
 header{display:flex;align-items:center;gap:22px;padding:18px 4px 22px;}
 .logo{display:flex;align-items:center;gap:14px;flex:none;}
 .logo-mark{width:48px;height:48px;flex:none;}
-.logo-txt .brand{font-size:23px;font-weight:800;letter-spacing:.5px;line-height:1;}
+.logo-txt .brand{font-size:23px;font-weight:800;letter-spacing:.5px;line-height:1;white-space:nowrap;}
 .logo-txt .sub{font-size:12px;color:var(--muted);margin-top:5px;}
 nav{display:flex;align-items:center;gap:26px;margin:0 auto 0 22px;}
 nav a{font-size:15px;color:#cfd1ca;font-weight:500;position:relative;padding-bottom:6px;}
@@ -48,10 +53,27 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
 .head-info .ico-box{color:var(--green);margin-top:2px;}
 .head-info .lbl b{font-weight:700;font-size:15px;display:block;color:#e7e8e3;}
 .head-info .lbl .l2{color:var(--muted);font-size:12.5px;line-height:1.4;}
-.head-phone{margin-left:14px;}
-.head-phone b{font-size:18px;letter-spacing:.3px;}
+.head-phone{margin-left:14px;flex:none;}
+.head-phone b{font-size:18px;letter-spacing:.3px;white-space:nowrap;}
 .btn-cabinet{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;color:#e7e8e3;cursor:pointer;margin-left:14px;white-space:nowrap;flex:none;transition:background .14s;}
 .btn-cabinet:hover{background:rgba(255,255,255,.1);}
+/* Шапка с входом и телефоном: на средних экранах постепенно убираем
+   второстепенное, чтобы кнопка «Войти» не уезжала за край (ниже 900 — бургер). */
+@media(max-width:1500px){
+  header{gap:16px;}
+  nav{gap:18px;margin-left:16px;}
+  .logo-txt .sub{display:none;}
+}
+@media(max-width:1300px){
+  nav{gap:16px;margin-left:12px;}
+  nav a{font-size:14px;}
+  .head-info:not(.head-phone){display:none;}
+}
+@media(max-width:1120px){
+  .head-phone{display:none;}
+  nav{gap:13px;}
+  nav a{font-size:13.5px;}
+}
 
 /* ── PAGE HERO ───────────────────────────────────── */
 .page-hero{position:relative;border-radius:var(--radius);overflow:hidden;height:122px;border:1px solid var(--line-soft);margin-bottom:16px;background:var(--panel);}
@@ -228,7 +250,7 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
     <a href="#">Клуб</a>
     <a href="/schedule" class="active">Расписание</a>
     <a href="#">Турниры</a>
-    <a href="#">Тренеры</a>
+    <a href="/coaches">Тренеры</a>
     <a href="/partners">Партнёры</a>
     <a href="#">Контакты</a>
   </nav>
@@ -248,7 +270,7 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
   </div>
   <button class="btn-cabinet" data-auth-open>
     <svg width="16" height="16" viewBox="0 0 24 24" class="ico"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
-    Войти
+    <span data-au-label>Войти</span>
     <svg width="14" height="14" viewBox="0 0 24 24" class="ico"><path d="m6 9 6 6 6-6"/></svg>
   </button>
 </header>
@@ -267,7 +289,7 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
 <div class="controls-bar">
   <div class="ctrl-pick" data-dd data-dd-type="calendar" data-dd-callback="onScheduleDate">
     <span class="cp-ico"><svg width="20" height="20" viewBox="0 0 24 24" class="ico"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg></span>
-    <div class="cp-lbl"><div class="k">Дата</div><div class="v" data-dd-val>{{ $fmt(0) }}</div></div>
+    <div class="cp-lbl"><div class="k">Дата</div><div class="v" data-dd-val>{{ $schedLabel }}</div></div>
     <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" class="ico"><path d="m6 9 6 6 6-6"/></svg></span>
   </div>
   <div class="ctrl-pick" data-dd data-dd-options="Всё время|08:00|09:00|10:00|11:00|12:00|13:00|14:00|15:00|16:00|17:00|18:00|19:00|20:00|21:00|22:00">
@@ -295,6 +317,12 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
   </button>
 </div>
 
+<!-- Уведомление: дата дальше окна онлайн-брони -->
+<div id="faraway-banner" style="display:none;margin-bottom:14px;padding:13px 16px;border:1px solid rgba(226,193,74,.4);background:rgba(226,193,74,.08);border-radius:12px;color:#e6d27a;font-size:13.5px;font-weight:600;align-items:center;gap:10px;">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+  <span>Онлайн-бронь доступна только на ближайшую неделю. На эту дату забронирует администратор — <a id="faraway-banner-phone" href="#" style="color:var(--green);text-decoration:underline;text-underline-offset:2px;">позвоните нам</a>.</span>
+</div>
+
 <!-- MAIN -->
 <div class="main-layout">
   <div class="sched-panel">
@@ -308,7 +336,7 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
   <div class="sidebar">
     <div class="sb-title">Ваше бронирование</div>
     <div class="sb-field"><div class="k">Стол</div><div class="v" id="sb-table">Стол 4</div></div>
-    <div class="sb-field"><div class="k">Дата</div><div class="v" id="sb-date">{{ $fmt(0) }}</div></div>
+    <div class="sb-field"><div class="k">Дата</div><div class="v" id="sb-date">{{ $schedLabel }}</div></div>
     <div class="sb-field"><div class="k">Время</div><div class="v" id="sb-time">18:00 – 19:30</div></div>
     <div class="sb-field"><div class="k">Длительность</div><div class="v" id="sb-dur">1.5 часа</div></div>
     <div class="sb-divider"></div>
@@ -367,7 +395,11 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
         <button class="modal-x" id="bk-close"><svg width="18" height="18" viewBox="0 0 24 24" class="ico"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
       </div>
       <div class="bk-row"><span class="bk-k">Стол</span><span class="bk-v" id="bk-table">Стол 4</span></div>
-      <div class="bk-row"><span class="bk-k">Дата</span><span class="bk-v" id="bk-date">{{ $fmt(0) }}</span></div>
+      <div class="bk-row"><span class="bk-k">Дата</span><span class="bk-v" id="bk-date">{{ $schedLabel }}</span></div>
+      <div id="bk-asuser" style="display:none;align-items:center;gap:8px;background:rgba(198,226,26,.08);border:1px solid rgba(198,226,26,.25);border-radius:10px;padding:9px 12px;margin:4px 0 2px;font-size:13px;color:#cfe08a;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
+        Вы вошли как <span style="font-weight:700;color:#dff0a0"></span>
+      </div>
       <div class="bk-field">
         <div class="bk-lbl">Время начала</div>
         <div class="stepper"><button data-step="start-1">−</button><span class="step-v" id="bk-start">18:00</span><button data-step="start1">+</button></div>
@@ -376,6 +408,17 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
         <div class="bk-lbl">Длительность</div>
         <div class="stepper"><button data-step="dur-1">−</button><span class="step-v" id="bk-durv">1 час</span><button data-step="dur1">+</button></div>
       </div>
+      <div class="bk-field">
+        <div class="bk-lbl">Ваше имя</div>
+        <input id="bk-name" type="text" autocomplete="name" placeholder="Как к вам обращаться"
+          style="width:100%;background:#0c0d0b;border:1px solid var(--line);border-radius:10px;padding:13px 14px;color:var(--txt);font-size:15px;font-family:inherit;outline:none;">
+      </div>
+      <div class="bk-field">
+        <div class="bk-lbl">Телефон</div>
+        <input id="bk-phone" type="tel" autocomplete="tel" placeholder="+7 ___ ___-__-__"
+          style="width:100%;background:#0c0d0b;border:1px solid var(--line);border-radius:10px;padding:13px 14px;color:var(--txt);font-size:15px;font-family:inherit;outline:none;">
+      </div>
+      <div id="bk-error" style="display:none;color:#f0a090;font-size:13px;font-weight:600;padding:4px 2px 0;"></div>
       <div class="bk-total"><span class="bt-k">Итого</span><span class="bt-v" id="bk-price">500 ₽</span></div>
       <button class="bk-ok" id="bk-confirm">Забронировать</button>
     </div>
@@ -387,6 +430,17 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
         <button class="bk-ok" id="bk-success-ok">Отлично</button>
       </div>
     </div>
+    <div id="bk-faraway" style="display:none">
+      <div class="bk-done">
+        <div class="bd-ico" style="border-color:#e2c14a;color:#e2c14a;background:rgba(226,193,74,.12)">
+          <svg width="30" height="30" viewBox="0 0 24 24" class="ico" style="stroke-width:2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>
+        </div>
+        <h4>Бронь на этот срок — через администратора</h4>
+        <p>Онлайн можно забронировать только на ближайшую неделю — дальше расписание ещё формируется (турниры, тренировки).<br>Позвоните, и мы забронируем вручную:</p>
+        <a id="bk-admin-phone" href="#" style="display:inline-block;margin:2px 0 16px;font-size:20px;font-weight:800;color:var(--green);text-decoration:none;">—</a>
+        <button class="bk-ok" id="bk-faraway-ok">Понятно</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -394,7 +448,14 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
 
 <script>
 (function(){
-  const RATE_PER_HOUR = 500;
+  const RATE_PER_HOUR = {{ (int)($ratePerHour ?: 500) }};
+  const TABLE_IDS  = @json($tableIds ?? []);
+  const BRANCH_ID  = @json($branchId ?? null);
+  const SERVICE_ID = @json($serviceId ?? null);
+  const BOOK_DATE  = @json($scheduleDate ?? null);
+  const MAX_BOOK_DATE = @json($maxBookDate ?? null);   // дальше — только через администратора
+  const ADMIN_PHONE   = @json($adminPhone ?? '');
+  const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || '';
   const START_HOUR = 8, END_HOUR = 23;
   const START_MIN = START_HOUR*60, SPAN_MIN = (END_HOUR-START_HOUR)*60;
   const SLOTS = (END_HOUR-START_HOUR)*2;
@@ -419,7 +480,7 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
   const PERSON = `<svg width="11" height="11" viewBox="0 0 24 24" style="flex:none;stroke:#d0e285;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>`;
 
   let sel = {row:0, start:'18:00', end:'19:00', table:(TABLES[0]||'')};
-  let curDate = '{{ $fmt(0) }}';
+  let curDate = '{{ $schedLabel }}';
 
   function renderGrid(){
     const root = document.getElementById('sched-root');
@@ -506,14 +567,70 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
     document.getElementById('bk-durv').textContent  = fmtDur(bk.dur/60);
     document.getElementById('bk-price').textContent = Math.round(bk.dur/60*RATE_PER_HOUR)+' ₽';
   }
+  let pendingBooking = null;
   function openBooking(row, startMin){
+    // Гейт входа: бронировать может только вошедший клиент.
+    // Не вошёл → запоминаем намерение и открываем окно входа.
+    if(!window.ttAuth || !ttAuth.isLoggedIn()){
+      pendingBooking = {row, startMin};
+      if(window.openAuth) openAuth('login');
+      return;
+    }
+    // Бронь дальше недели — только через администратора (даты сравниваем как строки Y-m-d).
+    if(MAX_BOOK_DATE && BOOK_DATE && BOOK_DATE > MAX_BOOK_DATE){
+      showFaraway();
+      return;
+    }
     bk.row=row; bk.table=TABLES[row]; bk.start=clampStart(Math.floor(startMin/30)*30); bk.dur=60;
     document.getElementById('bk-form').style.display='block';
     document.getElementById('bk-success').style.display='none';
+    document.getElementById('bk-error').style.display='none';
+    prefillIdentity();
     bkRefresh();
     document.getElementById('book-modal').classList.add('open');
   }
   function closeBooking(){ document.getElementById('book-modal').classList.remove('open'); }
+
+  // Экран «бронь дальше недели — через администратора»
+  function showFaraway(){
+    document.getElementById('bk-form').style.display='none';
+    document.getElementById('bk-success').style.display='none';
+    document.getElementById('bk-faraway').style.display='block';
+    var ph = document.getElementById('bk-admin-phone');
+    ph.textContent = ADMIN_PHONE || 'администратору';
+    ph.href = ADMIN_PHONE ? ('tel:' + ADMIN_PHONE.replace(/[^\d+]/g,'')) : '#';
+    document.getElementById('book-modal').classList.add('open');
+  }
+
+  // Подставляем имя/телефон вошедшего клиента и прячем эти поля.
+  function prefillIdentity(){
+    const u = (window.ttAuth && ttAuth.get()) || null;
+    const nameEl  = document.getElementById('bk-name');
+    const phoneEl = document.getElementById('bk-phone');
+    const asEl    = document.getElementById('bk-asuser');
+    if(u && u.phone){
+      nameEl.value  = u.name || '';
+      phoneEl.value = u.phone;
+      nameEl.closest('.bk-field').style.display  = u.name ? 'none' : 'block';
+      phoneEl.closest('.bk-field').style.display = 'none';
+      if(asEl){ asEl.style.display='flex'; asEl.querySelector('span').textContent = (u.name ? u.name+' · ' : '') + u.phone; }
+    } else {
+      nameEl.closest('.bk-field').style.display  = 'block';
+      phoneEl.closest('.bk-field').style.display = 'block';
+      if(asEl) asEl.style.display='none';
+    }
+  }
+
+  // Колбэк из auth.js после успешного входа: продолжаем отложенную бронь.
+  // Возврат true → auth.js закроет окно входа без общего экрана «Вы вошли».
+  window.ttOnLogin = function(user){
+    if(pendingBooking){
+      const p = pendingBooking; pendingBooking = null;
+      setTimeout(()=>openBooking(p.row, p.startMin), 40);
+      return true;
+    }
+    return false;
+  };
 
   document.querySelectorAll('[data-step]').forEach(b=>{
     b.addEventListener('click',()=>{
@@ -528,16 +645,56 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
   });
   document.getElementById('bk-close').addEventListener('click',closeBooking);
   document.getElementById('book-modal').addEventListener('click',e=>{ if(e.target.id==='book-modal') closeBooking(); });
-  document.getElementById('bk-confirm').addEventListener('click',()=>{
+  function showBkError(msg){
+    const el=document.getElementById('bk-error');
+    el.textContent=msg; el.style.display=msg?'block':'none';
+  }
+  document.getElementById('bk-confirm').addEventListener('click', async ()=>{
     const start=toStr(bk.start), end=toStr(bk.start+bk.dur);
-    EVENTS.push({row:bk.row, type:'mybooking', title:'Моя бронь', start, end});
-    updateSidebar(bk.row, start, end, bk.table);
-    rerender(); hidePopup();
-    document.getElementById('bk-form').style.display='none';
-    document.getElementById('bk-success').style.display='block';
-    document.getElementById('bk-success-text').innerHTML = `${bk.table} · ${curDate}<br>${start} – ${end}`;
+    const name=document.getElementById('bk-name').value.trim();
+    const phone=document.getElementById('bk-phone').value.trim();
+    showBkError('');
+
+    if(name.length<2){ showBkError('Укажите имя.'); return; }
+    if(phone.length<5){ showBkError('Укажите телефон.'); return; }
+    const resourceId = TABLE_IDS[bk.row];
+    if(!resourceId || !BRANCH_ID || !SERVICE_ID || !BOOK_DATE){
+      showBkError('Бронирование с сайта пока не настроено для этого клуба.'); return;
+    }
+
+    const btn=document.getElementById('bk-confirm');
+    btn.disabled=true; const label=btn.textContent; btn.textContent='Бронируем…';
+    try{
+      const res=await fetch('/book',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':CSRF},
+        body:JSON.stringify({
+          name, phone,
+          branch_id:BRANCH_ID, service_offering_id:SERVICE_ID, resource_id:resourceId,
+          date:BOOK_DATE, start, end
+        })
+      });
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok || !data.ok){
+        showBkError(data.message || 'Не удалось забронировать. Попробуйте другое время.');
+        return;
+      }
+      // Успех: показываем бронь в сетке и экран подтверждения
+      EVENTS.push({row:bk.row, type:'mybooking', title:'Моя бронь', start, end});
+      updateSidebar(bk.row, start, end, bk.table);
+      rerender(); hidePopup();
+      document.getElementById('bk-form').style.display='none';
+      document.getElementById('bk-success').style.display='block';
+      const acc = data.account_url ? `<br><a href="${data.account_url}" style="color:var(--green);text-decoration:underline;text-underline-offset:2px;">Мои брони</a>` : '';
+      document.getElementById('bk-success-text').innerHTML = `${bk.table} · ${curDate}<br>${start} – ${end}${acc}`;
+    }catch(e){
+      showBkError('Сеть недоступна. Попробуйте ещё раз.');
+    }finally{
+      btn.disabled=false; btn.textContent=label;
+    }
   });
   document.getElementById('bk-success-ok').addEventListener('click',()=>{ closeBooking(); toast('Бронь добавлена в расписание'); });
+  document.getElementById('bk-faraway-ok').addEventListener('click', closeBooking);
   document.getElementById('sb-book').addEventListener('click',()=>{ openBooking(sel.row, toMin(sel.start)); });
 
   document.getElementById('sched-root').addEventListener('click', e=>{
@@ -598,7 +755,20 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
   document.getElementById('vt-grid').addEventListener('click',()=>setView('grid'));
   document.getElementById('vt-list').addEventListener('click',()=>setView('list'));
 
-  window.onScheduleDate = function(val){ curDate=val; document.getElementById('sb-date').textContent=val; };
+  // Выбор даты в календаре → перезагрузка расписания на этот день (?date=YYYY-MM-DD).
+  // Сервер отрендерит брони выбранного дня, и новые брони пойдут на ту же дату.
+  window.onScheduleDate = function(val){
+    // val вида «25 июня, ср» — год календарь не передаёт, берём из текущей даты.
+    const MON = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+    const m = String(val).match(/(\d{1,2})\s+([а-яё]+)/i);
+    if(!m) return;
+    const day = parseInt(m[1], 10);
+    const mon = MON.indexOf(m[2].toLowerCase());
+    if(mon < 0) return;
+    const year = (BOOK_DATE && BOOK_DATE.slice(0,4)) || String(new Date().getFullYear());
+    const iso = year + '-' + String(mon+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+    window.location.href = '/schedule?date=' + iso;
+  };
 
   let toastT;
   function toast(msg){
@@ -614,6 +784,15 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
   }
   renderGrid();
   updateSidebar(sel.row, sel.start, sel.end, sel.table);
+  // Баннер «дальше недели — через администратора»
+  (function(){
+    var far = MAX_BOOK_DATE && BOOK_DATE && BOOK_DATE > MAX_BOOK_DATE;
+    var banner = document.getElementById('faraway-banner');
+    if(!banner) return;
+    banner.style.display = far ? 'flex' : 'none';
+    var ph = document.getElementById('faraway-banner-phone');
+    if(ph && ADMIN_PHONE){ ph.textContent = ADMIN_PHONE; ph.href = 'tel:' + ADMIN_PHONE.replace(/[^\d+]/g,''); }
+  })();
   const scr=document.getElementById('sched-scroll');
   function gotoAfternoon(){ scr.scrollLeft = (toMin('15:00')-START_MIN)/SPAN_MIN * 2040; }
   gotoAfternoon();
@@ -626,6 +805,5 @@ nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:
 </script>
 <script src="{{ asset('js/dropdowns.js') }}"></script>
 <script src="{{ asset('js/auth.js') }}"></script>
-<script src="{{ asset('js/mobile.js') }}"></script>
 </body>
 </html>

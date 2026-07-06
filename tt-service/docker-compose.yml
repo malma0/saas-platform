@@ -1,0 +1,63 @@
+# Теннис Клуб НСК — демо-стенд для заказчика.
+#
+# Запуск:   docker compose up -d --build
+# Открыть:  http://<SERVER_IP>          (сайт)
+#           http://<SERVER_IP>/admin    (админка MoonShine)
+# Логи:     docker compose logs -f app
+# Стоп:     docker compose down       (данные БД сохранятся в volume)
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tt-service:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_NAME: "Теннис Клуб НСК"
+      APP_ENV: production
+      # Готовый ключ для демо. Для боевого деплоя сгенерируйте свой:
+      #   docker compose run --rm app php artisan key:generate --show
+      APP_KEY: "${APP_KEY}"
+      APP_DEBUG: "false"
+      # Адрес стенда. Сейчас — IP сервера. Когда привяжете домен — поменяйте на него.
+      APP_URL: "http://<SERVER_IP>"
+      APP_TIMEZONE: "UTC"
+      APP_LOCALE: "ru"
+      APP_FALLBACK_LOCALE: "en"
+
+      DB_CONNECTION: "pgsql"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      DB_DATABASE: "tt_service"
+      DB_USERNAME: "tt_user"
+      DB_PASSWORD: "tt_secret"
+
+      SESSION_DRIVER: "database"
+      QUEUE_CONNECTION: "database"
+      CACHE_STORE: "database"
+      LOG_CHANNEL: "stderr"
+      MAIL_MAILER: "log"
+    ports:
+      - "80:80"
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "tt_service"
+      POSTGRES_USER: "tt_user"
+      POSTGRES_PASSWORD: "tt_secret"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tt_user -d tt_service"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  db_data:

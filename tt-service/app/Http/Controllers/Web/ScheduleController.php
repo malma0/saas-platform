@@ -7,7 +7,10 @@ namespace App\Http\Controllers\Web;
 use App\Domain\Booking\Models\Booking;
 use App\Domain\Facilities\Models\Branch;
 use App\Domain\Facilities\Models\Resource;
+use App\Domain\Services\Models\ServiceOffering;
+use App\Domain\Services\Services\PricingService;
 use App\Http\Controllers\Controller;
+use App\Support\Device;
 use App\Support\Enums\BookingStatus;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
@@ -24,6 +27,12 @@ class ScheduleController extends Controller
 {
     /** Тип ресурса «Стол». */
     private const RESOURCE_TYPE_TABLE = 1;
+
+    /** Онлайн-бронь доступна на столько дней вперёд (синхронно с BookingController). */
+    private const MAX_DAYS_AHEAD = 7;
+
+    /** Телефон администратора для брони на дальний срок. */
+    private const ADMIN_PHONE = '+7 (383) 207-86-20';
 
     public function index(Request $request): View
     {
@@ -89,14 +98,70 @@ class ScheduleController extends Controller
             }
         }
 
-        return view('schedule', [
+        // Услуга «аренда стола» и ставка за час — для оформления брони с сайта.
+        $service     = $this->tableRentalService($branch?->club_id);
+        $ratePerHour = $this->hourlyRate($service, $date, $tz);
+
+        return view(Device::isMobile() ? 'mobile.schedule' : 'schedule', [
             'branch'     => $branch,
             'tableNames' => $tables->pluck('name')->values(),
+            'tableIds'   => $tables->pluck('id')->values(),
             'events'     => $events,
             'scheduleDate' => $date->toDateString(),
+            'clubId'      => $branch?->club_id,
+            'branchId'    => $branch?->id,
+            'serviceId'   => $service?->id,
+            'ratePerHour' => $ratePerHour,
+            // Онлайн-бронь доступна на неделю вперёд; дальше — через администратора.
+            'maxBookDate' => Carbon::now($tz)->startOfDay()->addDays(self::MAX_DAYS_AHEAD)->toDateString(),
+            'adminPhone'  => self::ADMIN_PHONE,
             'prefTime'   => $request->query('time'),
             'prefService'=> $request->query('service'),
         ]);
+    }
+
+    /**
+     * Услуга аренды стола для клуба (по названию, иначе — первая активная).
+     */
+    private function tableRentalService(?int $clubId): ?ServiceOffering
+    {
+        if (! $clubId) {
+            return null;
+        }
+
+        $query = ServiceOffering::withoutGlobalScopes()
+            ->where('club_id', $clubId)
+            ->where('is_active', true);
+
+        // PostgreSQL — ilike (регистронезависимо), SQLite — like (для ASCII
+        // и так регистронезависим, а искомые слова уже в нижнем регистре).
+        $likeOp = $query->getConnection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+
+        return (clone $query)
+            ->where(fn ($q) => $q->where('name', $likeOp, '%стол%')->orWhere('name', $likeOp, '%аренд%'))
+            ->orderBy('id')
+            ->first()
+            ?? $query->orderBy('id')->first();
+    }
+
+    /**
+     * Ставка за час в рублях (PricingRule трактуем как почасовую). 0 — если цены нет.
+     */
+    private function hourlyRate(?ServiceOffering $service, Carbon $date, string $tz): int
+    {
+        if (! $service) {
+            return 0;
+        }
+
+        try {
+            $price = app(PricingService::class)->priceFor(
+                $service,
+                $date->copy()->setTimezone($tz)->setTime(12, 0)
+            );
+            return (int) round($price->amountMinor / 100);
+        } catch (\RuntimeException) {
+            return 0;
+        }
     }
 
     /**

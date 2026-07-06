@@ -143,16 +143,18 @@
         if(c.multi){
           h += `<div class="cal-card c-multi" id="multi-cell" style="top:${top}px;height:${Math.max(hgt,96)}px"
                  onclick="window.PARTNERS.openSlot()">
-            <div style="display:flex;align-items:center;justify-content:space-between"><span class="m-count">${c.count} заявки</span><span class="new-badge">Новое</span></div>
+            <span class="new-badge">Новое</span>
+            <div class="m-count">${c.count}</div>
+            <div class="m-sub">заявки</div>
             <div class="m-time">${c.s} – ${c.e}</div>
-            <div class="m-hint">Нажмите, чтобы посмотреть</div>
+            <div class="m-hint">Нажмите, чтобы открыть</div>
           </div>`;
         } else {
           const cls = 'c-'+c.status;
           const cup = c.cup ? `<svg width="13" height="13" viewBox="0 0 24 24" class="ico" style="position:absolute;right:9px;bottom:9px;stroke:var(--muted-2)"><path d="M6 4h12v3a6 6 0 0 1-12 0V4Z"/><path d="M6 6H4v1a3 3 0 0 0 3 3M18 6h2v1a3 3 0 0 1-3 3M9 16h6M10 16v3M14 16v3M8 21h8"/></svg>` : '';
           const sd = c.status==='active'?'d-active':c.status==='resp'?'d-resp':c.status==='conf'?'d-conf':'d-past';
           h += `<div class="cal-card ${cls}" style="top:${top}px;height:${Math.max(hgt,84)}px">
-            <div class="cc-top">${avatar(c.name,30)}<div><div class="cc-name">${c.name}</div><div class="cc-lvl ${lvlClass(c.lvl)}">${c.lvl}</div></div></div>
+            <div class="cc-top">${avatar(c.name,30)}<div class="cc-txt"><div class="cc-name">${c.name}</div><div class="cc-lvl ${lvlClass(c.lvl)}">${c.lvl}</div></div></div>
             <div class="cc-loc">${c.loc}</div>
             <div class="cc-status"><span class="dot ${sd}"></span>${c.sub}</div>
             ${cup}

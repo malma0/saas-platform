@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -24,7 +25,13 @@ return new class extends Migration
 
             $table->timestampTz('start_at');
             $table->timestampTz('end_at');
-            $table->unsignedInteger('duration_seconds')->storedAs('EXTRACT(EPOCH FROM (end_at - start_at))::INTEGER');
+            // Длительность сессии в секундах — generated column. Выражение
+            // зависит от драйвера: PostgreSQL (прод) умеет EXTRACT(EPOCH),
+            // SQLite (локальная разработка) — julianday()*86400.
+            $durationExpr = DB::getDriverName() === 'sqlite'
+                ? '(CAST((julianday(end_at) - julianday(start_at)) * 86400 AS INTEGER))'
+                : 'EXTRACT(EPOCH FROM (end_at - start_at))::INTEGER';
+            $table->unsignedInteger('duration_seconds')->storedAs($durationExpr);
 
             // Источник: analyzer | manual | import
             $table->string('source', 30)->default('analyzer');

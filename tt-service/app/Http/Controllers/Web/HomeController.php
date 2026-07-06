@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web;
 
 use App\Domain\Facilities\Models\Branch;
+use App\Domain\Facilities\Models\Coach;
 use App\Domain\Services\Models\ServiceOffering;
 use App\Http\Controllers\Controller;
+use App\Support\Device;
 use Illuminate\Contracts\View\View;
 
 /**
@@ -42,11 +44,19 @@ class HomeController extends Controller
             ? (int) substr((string) $weekdayHours->close_time, 0, 2)
             : 22;
 
-        return view('welcome', [
+        $coaches = Coach::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->limit(2)
+            ->get();
+
+        return view(Device::isMobile() ? 'mobile.home' : 'welcome', [
             'branch'    => $branch,
             'services'  => $services,
             'openHour'  => $openHour,
             'closeHour' => $closeHour,
+            'coaches'   => $coaches,
         ]);
     }
 }

@@ -5,9 +5,12 @@ namespace Database\Seeders;
 use App\Domain\Booking\Actions\CreateBooking;
 use App\Domain\Booking\DTO\CreateBookingDTO;
 use App\Domain\ClubCore\Models\Club;
+use App\Domain\Crm\Models\Client;
 use App\Domain\Facilities\Actions\CreateBranch;
+use App\Domain\Facilities\Actions\CreateCoach;
 use App\Domain\Facilities\Actions\CreateResource;
 use App\Domain\Facilities\DTO\CreateBranchDTO;
+use App\Domain\Facilities\DTO\CreateCoachDTO;
 use App\Domain\Facilities\DTO\CreateResourceDTO;
 use App\Domain\Services\Actions\CreateService;
 use App\Domain\Services\DTO\CreateServiceDTO;
@@ -120,7 +123,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'email'                 => 'demo@tt-service.local',
                 'default_currency_code' => 'RUB',
                 'default_locale'        => 'ru',
-                'timezone'              => 'Europe/Moscow',
+                'timezone'              => 'Asia/Novosibirsk',
             ]
         );
 
@@ -145,12 +148,10 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin->assignRole('admin');
 
         // --- Демо-филиал, зал, столы ---
-        $branch = (new CreateBranch())->handle(new CreateBranchDTO(
-            clubId:   $demoClub->id,
-            name:     'Центральный филиал',
-            address:  'г. Москва, ул. Примерная, 1',
-            timezone: 'Europe/Moscow',
-        ));
+        $branch = \App\Domain\Facilities\Models\Branch::firstOrCreate(
+            ['club_id' => $demoClub->id, 'name' => 'Центральный филиал'],
+            ['address' => 'г. Новосибирск, ул. Ленина, 1', 'timezone' => 'Asia/Novosibirsk', 'is_active' => true]
+        );
 
         $venue = Venue::firstOrCreate(
             ['branch_id' => $branch->id, 'name' => 'Основной зал'],
@@ -174,28 +175,18 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'Зал']
         );
 
-        $createResource = new CreateResource();
-
         // Зал (родитель)
-        $hallResource = $createResource->handle(new CreateResourceDTO(
-            clubId:         $demoClub->id,
-            branchId:       $branch->id,
-            resourceTypeId: $typeHall->id,
-            name:           'Основной зал',
-            parentId:       null,
-            capacity:       20,
-        ));
+        $hallResource = Resource::firstOrCreate(
+            ['club_id' => $demoClub->id, 'branch_id' => $branch->id, 'name' => 'Основной зал'],
+            ['resource_type_id' => $typeHall->id, 'capacity' => 20, 'is_active' => true]
+        );
 
         // 6 столов внутри зала
         foreach (range(1, 6) as $i) {
-            $createResource->handle(new CreateResourceDTO(
-                clubId:         $demoClub->id,
-                branchId:       $branch->id,
-                resourceTypeId: $typeTable->id,
-                name:           "Стол $i",
-                parentId:       $hallResource->id,
-                capacity:       2,
-            ));
+            Resource::firstOrCreate(
+                ['club_id' => $demoClub->id, 'branch_id' => $branch->id, 'name' => "Стол $i"],
+                ['resource_type_id' => $typeTable->id, 'parent_id' => $hallResource->id, 'capacity' => 2, 'is_active' => true]
+            );
         }
 
         // --- Демо-услуги (Фаза 5) ---
@@ -251,7 +242,50 @@ class RolesAndPermissionsSeeder extends Seeder
         ));
 
         // -----------------------------------------------------------------------
-        // Демо-бронирования (сегодня и завтра)
+        // Демо-тренеры (запись на индивидуальную тренировку)
+        // -----------------------------------------------------------------------
+        $demoCoaches = [
+            ['Иван Петров',     'Техника и тактика',          12, 'МС',   180000],
+            ['Анна Смирнова',   'Постановка удара, дети',      8, 'КМС',  150000],
+            ['Сергей Кузнецов', 'Соревновательная подготовка', 15, 'МСМК', 220000],
+        ];
+        $createCoach = new CreateCoach();
+        foreach ($demoCoaches as $i => [$name, $spec, $exp, $rank, $rate]) {
+            $exists = \App\Domain\Facilities\Models\Coach::where('club_id', $demoClub->id)
+                ->where('branch_id', $branch->id)
+                ->where('name', $name)
+                ->exists();
+            if (! $exists) {
+                $createCoach->handle(new CreateCoachDTO(
+                    clubId:          $demoClub->id,
+                    branchId:        $branch->id,
+                    name:            $name,
+                    hourlyRateMinor: $rate,
+                    specialization:  $spec,
+                    experienceYears: $exp,
+                    rank:            $rank,
+                    sortOrder:       $i,
+                ));
+            }
+        }
+
+        // -----------------------------------------------------------------------
+        // Демо-клиенты (с телефонами — чтобы можно было войти в личный кабинет)
+        // -----------------------------------------------------------------------
+        $demoClient = Client::firstOrCreate(
+            ['club_id' => $demoClub->id, 'phone' => '+79991234567'],
+            ['first_name' => 'Иван', 'last_name' => 'Петров', 'source' => 'seed']
+        );
+
+        Client::firstOrCreate(
+            ['club_id' => $demoClub->id, 'phone' => '+79995554433'],
+            ['first_name' => 'Мария', 'last_name' => 'Сидорова', 'source' => 'seed']
+        );
+
+        // -----------------------------------------------------------------------
+        // Демо-бронирования — привязаны к демо-клиенту (видны и в MoonShine,
+        // и в личном кабинете по телефону +7 999 123-45-67).
+        // Прошлые (история) + сегодня + завтра (предстоящие).
         // -----------------------------------------------------------------------
         /** @var \App\Domain\Services\Models\ServiceOffering $svcTable */
         $svcTable = \App\Domain\Services\Models\ServiceOffering::where('club_id', $demoClub->id)->where('name', 'Аренда стола')->first();
@@ -265,9 +299,18 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $today = Carbon::today($branch->timezone);
 
-        foreach ($tables as $i => $table) {
-            $hour = 10 + $i * 2; // 10:00, 12:00, 14:00
-            $startLocal = $today->copy()->setTime($hour, 0);
+        // [день относительно сегодня, час начала, стол-индекс] — даёт историю и будущее
+        $slots = [
+            [-3, 18, 0], // 3 дня назад — история
+            [-1, 12, 1], // вчера — история
+            [0, 16, 0],  // сегодня — предстоящее
+            [1, 11, 1],  // завтра — предстоящее
+            [2, 19, 2],  // послезавтра — предстоящее
+        ];
+
+        foreach ($slots as [$dayOffset, $hour, $tableIdx]) {
+            $table = $tables[$tableIdx] ?? $tables->first();
+            $startLocal = $today->copy()->addDays($dayOffset)->setTime($hour, 0);
             $startUtc   = $startLocal->copy()->utc();
             try {
                 $createBooking->handle(new CreateBookingDTO(
@@ -279,6 +322,7 @@ class RolesAndPermissionsSeeder extends Seeder
                     endAt:             $startUtc->copy()->addHour(),
                     amountMinor:       50000,
                     currencyCode:      'RUB',
+                    clientId:          $demoClient->id,
                     adminId:           $adminUser?->id,
                     notes:             'Демо-бронирование',
                 ));
@@ -292,6 +336,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->command->info('   owner:      owner@tt-service.local / owner123');
         $this->command->info('   admin:      admin@tt-service.local / admin123');
         $this->command->info("   Demo club:  '{$demoClub->name}' → '{$branch->name}' → '{$venue->name}' (6 столов)");
-        $this->command->info('   Demo bookings: 3 бронирования на сегодня (10:00, 12:00, 14:00 МСК)');
+        $this->command->info('   Demo bookings: 5 броней (история + сегодня + будущее) на клиенте Иван Петров');
+        $this->command->info('   Личный кабинет: телефон +79991234567 (Иван Петров)');
     }
 }

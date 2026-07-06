@@ -104,6 +104,11 @@ class Booking extends Model
         return $this->belongsTo(\App\Domain\Facilities\Models\Branch::class);
     }
 
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(\App\Domain\Crm\Models\Client::class);
+    }
+
     public function attendance(): HasOne
     {
         return $this->hasOne(Attendance::class);
