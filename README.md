@@ -39,6 +39,8 @@ PHP 8.3 · Laravel 13 · PostgreSQL 16 · MoonShine 4 · Laravel Sanctum · Redi
 ```bash
 cd tt-service
 cp .env.example .env
+# сгенерировать APP_KEY и вписать его в .env
+docker compose run --rm app php artisan key:generate --show
 docker compose up -d --build
 ```
 
