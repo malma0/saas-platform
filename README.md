@@ -2,6 +2,8 @@
 
 Мультитенантная SaaS-платформа для управления клубом настольного тенниса: бронирование столов и залов, расписание, клиентская база, платежи, отчёты, админка для персонала, REST API для мобильного приложения и публичный сайт клуба.
 
+> **EN:** Multi-tenant SaaS for a table-tennis club: booking engine with race-condition protection, schedules, CRM, payments domain, CSV/XLSX reports, MoonShine admin panel, REST API (Sanctum) for a mobile app and a public website. Laravel 13, PHP 8.3, PostgreSQL, domain-oriented architecture, feature tests.
+
 Код лежит в [`tt-service/`](tt-service/). Подробный статус и готовность частей описаны в [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 
 ## Из чего состоит
